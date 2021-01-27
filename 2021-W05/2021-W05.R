@@ -88,7 +88,7 @@ ggplot(data = coca_plastic_per_region,
       color = region
     ),
     # Many tries to have the right alignment
-    hjust = c(70, 70, 70, 70, 70, 70, 40, 90, 130),
+    hjust = c(70, 70, 70, 65, 70, 70, 80, 90, 130),
     position = position_stack(vjust = 0.5)
   ) +
   # Hide the line of ggrepel going on the second column (which is NULL by purpose)
@@ -112,5 +112,5 @@ ggplot(data = coca_plastic_per_region,
   )
 
 
-ggsave("2021-W05/coca_plastic.png", width = 13, height = 11, dpi = 800)
+ggsave("2021-W05/coca_plastic.png", width = 12, height = 7.5, dpi = 500)
 
