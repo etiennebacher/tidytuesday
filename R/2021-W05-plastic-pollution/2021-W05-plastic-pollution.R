@@ -112,5 +112,5 @@ ggplot(data = coca_plastic_per_region,
   )
 
 
-ggsave("2021-W05/coca_plastic.png", width = 12, height = 7.5, dpi = 500)
+ggsave("R/2021-W05-plastic-pollution/coca_plastic.png", width = 12, height = 7.5, dpi = 500)
 
