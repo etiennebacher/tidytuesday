@@ -41,7 +41,7 @@ plot_owner_perc <- function(ethnic) {
     ylim(-1, 7) +
     theme(legend.position = "none") +
     ggtitle(ethnic) +
-    theme(plot.title = element_text(hjust = 0.55))
+    theme(plot.title = element_text(hjust = 0.55, size = 10))
 
 }
 
@@ -105,20 +105,27 @@ text <-
   ggplot(df) +
   aes(
     x, y, label = "<span style = 'font-size:12pt;'>The share of Americans that own their home has been quite constant between 1976 and 2016. However, we observe significant disparities between the three main ethnic groups (White, Black, and Hispanic).</span>",
-    hjust = -0.1, vjust = 1.1
+    hjust = -0.1, vjust = 1.1, fill = "#f0e68c"
   ) +
   geom_textbox(
-    aes(valign = TRUE, box.colour = "white"), 
-    width = unit(0.9, "npc"), 
-    height = unit(0.9, "npc")
+    aes(valign = TRUE, color = "black"), 
+    width = unit(0.8, "npc"), 
+    height = unit(0.3, "npc")
   ) +
   xlim(0, 20) + 
   ylim(0, 7) +
+  scale_discrete_identity(aesthetics = c("color", "fill", "orientation")) +
   theme_void()
   
 
-ggpubr::ggarrange(text, plot_hispanics, plot_white, plot_black, ncol = 2, nrow = 2, common.legend = TRUE, legend="bottom") 
+all_plots <- ggpubr::ggarrange(text, plot_hispanics, plot_white, plot_black, ncol = 2, nrow = 2, common.legend = TRUE, legend="bottom") 
 
+annotate_figure(all_plots, 
+                top = text_grob("House ownership in the US", 
+                                face = "bold",
+                                size = 15)
+) +
+  bgcolor("#f9f5d2")
 
 
 
