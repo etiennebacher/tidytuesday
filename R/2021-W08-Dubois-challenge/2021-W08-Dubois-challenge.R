@@ -65,7 +65,7 @@ b1 <- bracketsGrob(1.02, -0.08,-0.02, -0.08, curvature = 0.5, lwd = 1, col = "#8
 
 # Add "PERCENTS"
 
-percent_annotation <- textGrob("PERCENTS", 0.47, -0.16, 0.5, -0.16, 
+percent_annotation <- textGrob("PERCENTS", 0.46, -0.16, 0.5, -0.16, 
                                gp = gpar(fontsize = 8, col = "#808080"))
 
 
