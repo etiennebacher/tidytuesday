@@ -7,6 +7,7 @@ library(ggtext)
 library(pdftools)
 library(extrafont)
 library(pBrackets)
+library(grid)
 
 ### Try to reproduce https://github.com/ajstarks/dubois-data-portraits/blob/master/challenge/challenge01/original-plate-07.jpg
 
@@ -44,9 +45,9 @@ p <- tuesdata$georgia_pop %>%
     legend.title = element_blank(),
     legend.background = element_rect(fill = "#f7ddbb"),
     legend.key = element_rect(fill = "#f7ddbb"),
-    legend.text = element_text(margin = margin(r = 17, unit = "cm")),
+    legend.text = element_text(margin = margin(r = 17, unit = "cm"), size = 8),
     legend.key.width = unit(2.3, "cm"),
-    legend.box.margin = margin(l = 17, unit = "cm"),
+    legend.box.margin = margin(l = 17, t = 1.1, unit = "cm"),
     plot.margin = margin(l = 5, r = 5, b = 1, unit = "cm")
   ) +
   labs(title = toupper("\ncomparative increase of white and colored\npopulation in georgia.\n\n")) 
@@ -62,10 +63,14 @@ bracketsGrob <- function(...){
     do.call(grid.brackets, l)
   }, e)
 }
-b1 <- bracketsGrob(1.02, -0.16,-0.02, -0.16, curvature = 0.5, lwd = 1, col = "#808080")
+b1 <- bracketsGrob(1.02, -0.08,-0.02, -0.08, curvature = 0.5, lwd = 1, col = "#808080")
+
+percent_annotation <- textGrob("PERCENTS", 0.47, -0.16, 0.5, -0.16, gp = gpar(fontsize = 8))
+
 
 p +
-  annotation_custom(b1)
+  annotation_custom(b1) +
+  annotation_custom(percent_annotation)
 
 
 
