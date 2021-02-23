@@ -4,7 +4,6 @@ library(ggplot2)
 library(lubridate)
 library(gganimate)
 library(tidytuesdayR)
-library(pdftools)
 
 
 tuesdata <- tidytuesdayR::tt_load(2021, week = 9)
@@ -65,4 +64,4 @@ plot1 <-
     axis.ticks = element_blank()
   ) 
 
-animate(plot1, end_pause = 20, width = 700, duration = 35)
+animate(plot1, end_pause = 20, width = 700, duration = 25)
