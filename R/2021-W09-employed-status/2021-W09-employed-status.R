@@ -22,13 +22,13 @@ plot1 <-
                       "Women" = "women", 
                       "Men" = "men"),
          sex = as.factor(sex),
-         period = ym(period)) %>% 
+         period = yq(period)) %>% 
   ggplot(aes(x = period, y = median_weekly_earn, group = sex)) +
   geom_line(aes(linetype = sex), color = color_background_2) +
   labs(
     x = "Time",
     y = "Median weekly earning ($)",
-    title = "Evolution of men's and women's weekly earnings\n\n Year: {frame_along}",
+    title = "Evolution of men's and women's weekly earnings\n\n Year: {substr(frame_along, 1, 7)}",
     caption = "Made by Etienne Bacher"
   ) +
   ylim(c(500, 1100)) +
@@ -64,4 +64,4 @@ plot1 <-
     axis.ticks = element_blank()
   ) 
 
-animate(plot1, end_pause = 20, width = 700, duration = 25)
+animate(plot1, end_pause = 20, width = 700, duration = 44, nframes = 66)
