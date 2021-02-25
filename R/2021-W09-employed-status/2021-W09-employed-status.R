@@ -4,7 +4,6 @@ library(ggplot2)
 library(lubridate)
 library(gganimate)
 library(tidytuesdayR)
-library(systemfonts)
 
 
 tuesdata <- tidytuesdayR::tt_load(2021, week = 9)
