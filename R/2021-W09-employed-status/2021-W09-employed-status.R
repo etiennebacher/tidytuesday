@@ -76,4 +76,5 @@ plot1 <-
   ease_aes('linear')
 
 animate(plot1, end_pause = 20, width = 700, duration = 44, nframes = 66,
+        width = 1000, height = 600, detail = 5,
         renderer = gifski_renderer("R/2021-W09-employed-status/employed_status.gif"))
