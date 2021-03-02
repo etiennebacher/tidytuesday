@@ -78,10 +78,10 @@ p +
 
 # Export
 
-ggsave("R/2021-W08-Dubois-challenge/dubois-challenge-georgia.pdf", 
+ggsave("R/2021/W08-Dubois-challenge/dubois-challenge-georgia.pdf", 
        width = 13.3, height = 13.5, device = cairo_pdf)
 
 
-pdf_convert(pdf = "R/2021-W08-Dubois-challenge/dubois-challenge-georgia.pdf", 
-            filenames = "R/2021-W08-Dubois-challenge/dubois-challenge-georgia.png",
+pdf_convert(pdf = "R/2021/W08-Dubois-challenge/dubois-challenge-georgia.pdf", 
+            filenames = "R/2021/W08-Dubois-challenge/dubois-challenge-georgia.png",
             format = "png", dpi = 350)

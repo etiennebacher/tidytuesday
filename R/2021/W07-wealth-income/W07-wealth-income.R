@@ -152,12 +152,12 @@ annotate_figure(
 
 # Export
 
-ggsave("R/2021-W07-wealth-income/home-ownership.pdf", 
+ggsave("R/2021/W07-wealth-income/home-ownership.pdf", 
        width = 16.3, height = 9.5, device = cairo_pdf)
 
 
-pdf_convert(pdf = "R/2021-W07-wealth-income/home-ownership.pdf", 
-            filenames = "R/2021-W07-wealth-income/home-ownership.png",
+pdf_convert(pdf = "R/2021/W07-wealth-income/home-ownership.pdf", 
+            filenames = "R/2021/W07-wealth-income/home-ownership.png",
             format = "png", dpi = 350)
 
 
@@ -307,11 +307,11 @@ annotate_figure(
 
 # Export
 
-ggsave("R/2021-W07-wealth-income/home-ownership.pdf", 
+ggsave("R/2021/W07-wealth-income/home-ownership.pdf", 
        width = 16.3, height = 9.5, device = cairo_pdf)
 
 
-pdf_convert(pdf = "R/2021-W07-wealth-income/home-ownership.pdf", 
-            filenames = "R/2021-W07-wealth-income/home-ownership.png",
+pdf_convert(pdf = "R/2021/W07-wealth-income/home-ownership.pdf", 
+            filenames = "R/2021/W07-wealth-income/home-ownership.png",
             format = "png", dpi = 350)
 
