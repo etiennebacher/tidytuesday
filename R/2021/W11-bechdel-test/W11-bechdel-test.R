@@ -13,11 +13,9 @@ library(ggtext)
 tuesdata <- tidytuesdayR::tt_load(2021, week = 11)
 
 
-### Do something on the actors that play the most in movies with
-### good Bechdel test writing ?
-
-### Faire un graphique avec des sigmoides (voir https://github.com/Z3tt/TidyTuesday/blob/master/R/2021_02_TransitCosts.Rmd)
-### pour comparer le classement des acteurs dans les films les mieux noté sur imdb et les films avec la meilleure note au bechdel test
+##########
+## Treat the data ##
+##########
 
 data_cleaned <-
   tuesdata$movies %>%
@@ -63,7 +61,7 @@ data_cleaned <-
     cols = contains("rank"),
     names_to = "rank_type",
     values_to = "rank"
-  ) %>% 
+  ) %>%
   mutate(
     rank_type = case_when(
       rank_type == "rank_imdb" ~ "1",
@@ -71,12 +69,15 @@ data_cleaned <-
       TRUE ~ NA_character_
     ),
     rank_type = as.numeric(rank_type),
-    
+
     actors_and_imdb = glue("**{actors}** ({round(avg_movie_rating, 1)})"),
     actors_and_bechdel = glue("**{actors}** ({round(avg_bechdel_rating, 1)})")
-  )
-  
+  ) 
 
+
+##########
+## Make bump plot ##
+##########
 
 bump_plot <- ggplot(
   data_cleaned, 
@@ -122,31 +123,30 @@ bump_plot <- ggplot(
 
   # Arrow for IMDB side
   geom_segment(
-    aes(x = -0.4, xend = -0.4, y = 12, yend = 3),
+    aes(x = 0, xend = 0, y = 12, yend = 3),
     arrow = arrow(length = unit(0.03, "npc"))
   ) +
   annotate(
     geom = "text",
-    x = -0.48, y = 7.5, angle = 90,
+    x = -0.08, y = 7.5, angle = 90,
     label = "IMDB ranking"
   ) +
   
   # Arrow for Bechdel side
   geom_segment(
-    aes(x = 3.4, xend = 3.4, y = 12, yend = 3),
+    aes(x = 3, xend = 3, y = 12, yend = 3),
     arrow = arrow(length = unit(0.03, "npc"))
   ) +
   annotate(
     geom = "text",
-    x = 3.49, y = 7.5, angle = -90,
+    x = 3.09, y = 7.5, angle = -90,
     label = "Bechdel ranking"
   ) +
   
   # Title, subtitle, caption
   labs(
-    title = "<br>**Comparing the top 15 actors/actresses with IMDB and Bechdel ranking**<br>",
-    subtitle = "The Bechdel ranking is based on the Bechdel rating: a movie is rated from 0 (no women in the movie) to 3 (at least two women talking about something else \nthan men). This plot focuses on actors that have the highest average IMDB rating (which depends on the movies they have played in), and compares this \nranking with the Bechdel ranking.\n",
-    caption = "Made by Etienne Bacher, with FiveThirtyEight data."
+    title = paste0("<br>**", toupper("Comparing the top 15 actors/actresses with IMDB and Bechdel ranking"), "**<br>"),
+    subtitle = "The Bechdel ranking is based on the Bechdel rating: a movie is rated from 0 (no women in the movie) to 3 (at least two women talking about something else than men). This plot focuses on \nactors that have the highest average IMDB rating out of 10 (which depends on the movies they have played in), and compares this ranking with the Bechdel ranking (out of 3). It focuses only \non the actors and actresses that have appeared in at least 4 movies.\n\n"
   ) +
   
   # Custom theme
@@ -163,11 +163,141 @@ bump_plot <- ggplot(
     panel.grid.minor = element_blank(),
     
     # background
-    plot.background = element_rect(fill = "#d9d9d9"),
-    panel.background = element_rect(fill = "#d9d9d9"),
+    plot.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9"),
+    panel.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9"),
     
     # title, subtitle, caption
-    plot.title = element_markdown(hjust = 0.5),
-    plot.subtitle = element_text(margin = margin(l = 100, r = 100)),
-    plot.margin = margin(0, b = 50, r = 175, l = 175),
+    plot.title = element_markdown("Roboto Condensed", hjust = 0.5, size = 16),
+    text = element_text("Roboto Condensed")
   )
+
+
+##########
+## Make up and down arrows ##
+##########
+
+change_plot <- ggplot(data_cleaned) +
+  xlim(0, 1) +
+  ylim(0, 0.8) +
+
+  # Red and green triangles
+  geom_polygon(
+    data = data.frame(
+      triangle.x = c(0.2, 0.3, 0.25),
+      triangle.y = c(0.6, 0.6, 0.45)
+    ),
+    aes(x = triangle.x, y = triangle.y),
+    fill = "#b30000"
+  ) +
+  geom_polygon(
+    data = data.frame(
+      triangle.x = c(0.7, 0.8, 0.75),
+      triangle.y = c(0.45, 0.45, 0.6)
+    ),
+    aes(x = triangle.x, y = triangle.y),
+    fill = "#009933"
+  ) +
+
+  # descriptive text
+  geom_richtext(
+    data = data_cleaned %>%
+      filter(actors == "x"),
+    aes(x = 0.25, y = 0.38),
+    label = "**Biggest decrease:**",
+    fill = NA,
+    label.color = NA,
+    color = "#b30000"
+  ) +
+  geom_richtext(
+    data = data_cleaned %>%
+      filter(change == min(change)) %>%
+      select(actors, change) %>%
+      distinct() %>%
+      mutate(
+        change = as.character(change),
+        change = case_when(
+          as.numeric(change) > 0 ~ paste0("+", change),
+          TRUE ~ change
+        )
+      ),
+    aes(x = 0.25, y = 0.29, label = glue("{actors} ({change})")),
+    fill = NA,
+    label.color = NA,
+    color = "#b30000"
+  ) +
+  geom_richtext(
+    data = data_cleaned %>%
+      filter(actors == "x"),
+    aes(x = 0.75, y = 0.38),
+    label = "**Biggest increase:**",
+    fill = NA,
+    label.color = NA,
+    color = "#009933"
+  ) +
+  geom_richtext(
+    data = data_cleaned %>%
+      filter(change == max(change)) %>%
+      select(actors, change) %>%
+      distinct() %>%
+      mutate(
+        change = as.character(change),
+        change = case_when(
+          as.numeric(change) > 0 ~ paste0("+", change),
+          TRUE ~ change
+        )
+      ),
+    aes(x = 0.75, y = 0.29, label = glue("{actors} ({change})")),
+    fill = NA,
+    label.color = NA,
+    color = "#009933"
+  ) +
+  labs(
+    caption = "Made by Etienne Bacher, with FiveThirtyEight data."
+  ) + 
+  theme(
+    # Remove useless text
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.position = "",
+    # Remove graduations
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    # background
+    plot.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9"),
+    panel.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9"),
+    plot.caption = element_text(hjust = 0.5),
+    text = element_text("Roboto Condensed")
+  )
+
+
+##########
+## Assemble the two plots ##
+##########
+
+layout <- "
+AAAA
+AAAA
+#BB#
+"
+
+bump_plot/change_plot + 
+  plot_layout(design = layout) +
+  plot_annotation(
+    theme = theme(
+      plot.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9"),
+      panel.background = element_rect(fill = "#d9d9d9", color = "#d9d9d9")
+    )
+  )
+  
+  
+##########
+## Export ##
+##########
+
+ggsave("R/2021/W11-bechdel-test/bechdel-test.pdf", 
+       width = 15, height = 9, device = cairo_pdf)
+
+pdf_convert(pdf = "R/2021/W11-bechdel-test/bechdel-test.pdf", 
+            filenames = "R/2021/W11-bechdel-test/bechdel-test.png",
+            format = "png", dpi = 350)
