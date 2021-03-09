@@ -18,10 +18,10 @@ tuesdata <- tidytuesdayR::tt_load(2021, week = 11)
 ### pour comparer le classement des acteurs dans les films les mieux noté sur imdb et les films avec la meilleure note au bechdel test
 
 data_cleaned <-
-  tuesdata$movies %>% 
+  tuesdata$movies %>%
   mutate(actors = strsplit(actors, ",")) %>%
-  unnest(actors) %>% 
-  arrange(actors) %>% 
+  unnest(actors) %>%
+  arrange(actors) %>%
   mutate(
     actors = gsub("^ ", "", actors),
     bechdel_rating = case_when(
@@ -32,39 +32,54 @@ data_cleaned <-
       TRUE ~ NA_character_
     ),
     bechdel_rating = as.numeric(bechdel_rating)
-  ) %>% 
-  relocate(bechdel_rating, .after = "clean_test") %>% 
-  group_by(actors) %>% 
+  ) %>%
+  relocate(bechdel_rating, .after = "clean_test") %>%
+  group_by(actors) %>%
   mutate(
     n_movies = n(),
     avg_movie_rating = mean(imdb_rating, na.rm = TRUE),
     avg_bechdel_rating = mean(bechdel_rating, na.rm = TRUE)
-  ) %>% 
-  ungroup() %>% 
-  select(actors, n_movies, avg_movie_rating, avg_bechdel_rating) %>% 
-  filter(!is.na(actors), n_movies >= 4) %>% 
-  distinct() %>% 
-  arrange(desc(n_movies), desc(avg_bechdel_rating)) %>% 
-  slice_max(n_movies, n = 15, with_ties = FALSE) %>% 
-  
-  # Create ranks for Bechdel
-  arrange(desc(avg_bechdel_rating)) %>% 
-  mutate(rank_bechdel = row_number()) %>% 
-    
-  # Create ranks for IMDB
-  arrange(desc(avg_movie_rating)) %>% 
-  mutate(rank_imdb = row_number()) %>% 
+  ) %>%
+  ungroup() %>%
+  select(actors, n_movies, avg_movie_rating, avg_bechdel_rating) %>%
+  filter(!is.na(actors), n_movies >= 4) %>%
+  distinct() %>%
+  arrange(desc(n_movies), desc(avg_bechdel_rating)) %>%
+  slice_max(n_movies, n = 15, with_ties = FALSE) %>%
 
+  # Create ranks for Bechdel
+  arrange(desc(avg_bechdel_rating)) %>%
+  mutate(rank_bechdel = row_number()) %>%
+
+  # Create ranks for IMDB
+  arrange(desc(avg_movie_rating)) %>%
+  mutate(rank_imdb = row_number()) %>%
+  mutate(
+    change = rank_imdb - rank_bechdel
+  ) %>%
   pivot_longer(
     cols = contains("rank"),
     names_to = "rank_type",
     values_to = "rank"
-  ) 
+  )
 
 
 
 ### Color the lines according to the degree of increase (green)/decrease (red)
 
 ggplot(data_cleaned, aes(x = rank_type, y = rank, group = actors)) +
-  geom_bump(aes(smooth = 10), size = 1.5, lineend = "round") +
-  geom_label(aes(label = actors)) 
+  geom_bump(
+    aes(color = change), 
+    size = 1.5, lineend = "round"
+  ) +
+  geom_point(
+    aes(color = change, size = 10)
+  ) +
+  # geom_label(aes(label = actors, color = change)) +
+  scale_color_gradient2(low = "#b30000", mid = "grey", high = "#009933", midpoint = .02) +
+  theme(
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.position = ""
+  )
