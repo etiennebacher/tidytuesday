@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 12, Steam games
+
+![](R/2021/W12-steam-games/steam-games.png)
+
 ## 2021, Week 11, Bechdel test
 
 ![](R/2021/W11-bechdel-test/bechdel-test.png)
