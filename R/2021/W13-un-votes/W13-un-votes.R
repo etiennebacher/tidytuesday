@@ -2,7 +2,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(ggtext)
-library(WDI)
 library(tidytuesdayR)
 library(pdftools)
 
