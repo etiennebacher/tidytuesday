@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 13, UN votes
+
+![](R/2021/W13-un-votes/un-votes.png)
+
 ## 2021, Week 12, Steam games
 
 ![](R/2021/W12-steam-games/steam-games.png)
