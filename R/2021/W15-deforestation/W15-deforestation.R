@@ -12,3 +12,5 @@ library(pdftools)
 ##########
 
 tuesdata <- tidytuesdayR::tt_load(2021, week = 15)
+
+plot(mtcars)
