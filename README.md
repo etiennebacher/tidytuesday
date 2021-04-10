@@ -1,5 +1,8 @@
 # My plots for TidyTuesday
 
+## 2021, Week 15, Deforestation
+
+![](R/2021/W15-deforestation/deforestation.png)
 
 ## 2021, Week 13, UN votes
 
