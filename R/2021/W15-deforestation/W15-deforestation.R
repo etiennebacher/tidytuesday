@@ -4,7 +4,6 @@ library(ggplot2)
 library(ggtext)
 library(tidytuesdayR)
 library(pdftools)
-library(gghighlight)
 library(ggrepel)
 
 
