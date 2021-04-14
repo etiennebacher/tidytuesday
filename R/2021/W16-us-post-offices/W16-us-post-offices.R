@@ -53,29 +53,41 @@ clean_data <- left_join(complete_data, clean_data,
     cumsum = replace_na(cumsum, 0)
   )
 
-
-packing <- circleProgressiveLayout(clean_data %>% 
-                                     filter(year == 1900) %>% 
-                                     pull(cumsum), 
-                                   sizetype = 'area')
-foo <- cbind(clean_data %>% 
-                      filter(year == 1900), packing)
-
-clean_data_mod <- circleLayoutVertices(packing, npoints = 50)
-
-ggplot() + 
-  geom_polygon(
-    data = clean_data_mod, 
-    aes(x, y, group = state, fill = as.factor(state)),
-    colour = "black", 
-    alpha = 0.6
-  ) +
+plots <- list()
+for (i in unique(clean_data$year)) {
   
-  # Add text in the center of each bubble + control its size
-  geom_text(data = foo, aes(x, y, size = cumsum, label = state)) +
-  scale_size_continuous(range = c(1,4)) +
+  packing <- circleProgressiveLayout(clean_data %>% 
+                                       filter(year == i) %>% 
+                                       pull(cumsum), 
+                                     sizetype = 'area')
+  foo <- cbind(clean_data %>% 
+                 filter(year == i), packing)
   
-  # General theme:
-  theme_void() + 
-  theme(legend.position="none") +
-  coord_equal()
+  clean_data_mod <- circleLayoutVertices(packing, npoints = 50)
+  
+  plots[[as.character(i)]] <-  ggplot() + 
+    geom_polygon(
+      data = clean_data_mod, 
+      aes(x, y, group = id, fill = as.factor(id)),
+      colour = "black", 
+      alpha = 0.6
+    ) +
+    
+    # Add text in the center of each bubble + control its size
+    geom_text(data = foo, aes(x, y, size = cumsum, label = state)) +
+    scale_size_continuous(range = c(1,4)) +
+    
+    # General theme:
+    theme_void() + 
+    theme(legend.position="none") +
+    coord_equal() 
+  
+    ggsave(paste0("R/2021/W16-us-post-offices/y_", i), 
+           plot = plots[[as.character(i)]],
+           device = "png")
+  
+}
+
+list_png <- list.files(pattern = "y_", recursive = T)
+
+gifski::gifski(list_png, gif_file = "R/2021/W16-us-post-offices/aaa.gif")
