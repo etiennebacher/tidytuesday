@@ -6,8 +6,11 @@ library(tidytuesdayR)
 library(pdftools)
 library(gghighlight)
 library(ggrepel)
-library(packcircles)
-
+library(broom)
+library(rgeos)
+library(geojsonio)
+library(rgdal)
+library(usdata)
 
 
 ###########################
@@ -50,44 +53,55 @@ clean_data <- left_join(complete_data, clean_data,
   fill(n, cumsum, .direction = "down") %>% 
   mutate(
     n = replace_na(n, 0),
-    cumsum = replace_na(cumsum, 0)
+    cumsum = replace_na(cumsum, 0),
+    state = usdata::abbr2state(state)
   )
 
-plots <- list()
-for (i in unique(clean_data$year)) {
-  
-  packing <- circleProgressiveLayout(clean_data %>% 
-                                       filter(year == i) %>% 
-                                       pull(cumsum), 
-                                     sizetype = 'area')
-  foo <- cbind(clean_data %>% 
-                 filter(year == i), packing)
-  
-  clean_data_mod <- circleLayoutVertices(packing, npoints = 50)
-  
-  plots[[as.character(i)]] <-  ggplot() + 
-    geom_polygon(
-      data = clean_data_mod, 
-      aes(x, y, group = id, fill = as.factor(id)),
-      colour = "black", 
-      alpha = 0.6
-    ) +
-    
-    # Add text in the center of each bubble + control its size
-    geom_text(data = foo, aes(x, y, size = cumsum, label = state)) +
-    scale_size_continuous(range = c(1,4)) +
-    
-    # General theme:
-    theme_void() + 
-    theme(legend.position="none") +
-    coord_equal() 
-  
-    ggsave(paste0("R/2021/W16-us-post-offices/y_", i), 
-           plot = plots[[as.character(i)]],
-           device = "png")
-  
-}
 
-list_png <- list.files(pattern = "y_", recursive = T)
+##########
+## Data for hex map of US ##
+## Taken here: http://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
+##########
 
-gifski::gifski(list_png, gif_file = "R/2021/W16-us-post-offices/aaa.gif")
+spdf <- geojson_read("R/2021/W16-us-post-offices/us_states_hexgrid.geojson",  
+                     what = "sp")
+
+# Bit of reformating
+spdf@data = spdf@data %>%
+  mutate(google_name = gsub(" \\(United States\\)", "", google_name))
+spdf_fortified <- tidy(spdf, region = "google_name")
+
+# Calculate the centroid of each hexagon to add the label
+centers <- cbind.data.frame(
+  data.frame(
+    gCentroid(spdf, byid=TRUE),
+    id=spdf@data$iso3166_2
+  )
+)
+
+spdf_fortified <- spdf_fortified %>% 
+  left_join(clean_data, by = c("id" = "state"))
+  
+# plots <-
+  spdf_fortified %>% 
+  filter(year %% 5 == 0) %>% 
+  select(-order) %>% 
+  group_by(id) %>% 
+  slice_head(n = 73) %>% 
+  ungroup() %>% 
+  ggplot() +
+  geom_polygon(
+    aes(x = long, y = lat, fill = cumsum, group = group),
+    color = "white"
+  ) +
+  geom_text(
+    data = centers, 
+    aes(x = x, y = y, label = id), 
+    color = "white"
+  ) +
+  theme_void() +
+  labs(title = "Year: {closest_state}") +
+  coord_map() +
+  transition_states(year)
+
+animate(plots, end_pause = 5)
