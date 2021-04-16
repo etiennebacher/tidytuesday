@@ -11,6 +11,7 @@ library(rgeos)
 library(geojsonio)
 library(rgdal)
 library(usdata)
+library(gganimate)
 
 
 ###########################
@@ -54,54 +55,53 @@ clean_data <- left_join(complete_data, clean_data,
   mutate(
     n = replace_na(n, 0),
     cumsum = replace_na(cumsum, 0),
-    state = usdata::abbr2state(state)
-  )
+    state_name = usdata::abbr2state(state)
+  ) %>%
+  filter(!state_name %in% c("Alaska", "Hawaii"),
+         year %% 25 == 0)
 
 
-##########
-## Data for hex map of US ##
-## Taken here: http://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html
-##########
+us_states <- ggplot2::map_data("state") %>% 
+  mutate(region = tools::toTitleCase(region))
 
-spdf <- geojson_read("R/2021/W16-us-post-offices/us_states_hexgrid.geojson",  
-                     what = "sp")
-
-# Bit of reformating
-spdf@data = spdf@data %>%
-  mutate(google_name = gsub(" \\(United States\\)", "", google_name))
-spdf_fortified <- tidy(spdf, region = "google_name")
-
-# Calculate the centroid of each hexagon to add the label
-centers <- cbind.data.frame(
-  data.frame(
-    gCentroid(spdf, byid=TRUE),
-    id=spdf@data$iso3166_2
-  )
-)
-
-spdf_fortified <- spdf_fortified %>% 
-  left_join(clean_data, by = c("id" = "state"))
-  
-# plots <-
-  spdf_fortified %>% 
-  filter(year %% 5 == 0) %>% 
-  select(-order) %>% 
-  group_by(id) %>% 
-  slice_head(n = 73) %>% 
+clean_data_2 <- clean_data %>% 
+  left_join(us_states, by = c("state_name" = "region")) %>% 
+  distinct() %>% 
+  group_by(year) %>% 
+  mutate(highest = ifelse(cumsum == max(cumsum), 1, 0)) %>% 
   ungroup() %>% 
+  filter(year >= 1800)
+
+
+
+### Ajouter un texte : plus forte hausse, plus forte baisse
+
+
+clean_data_2 %>% 
   ggplot() +
   geom_polygon(
-    aes(x = long, y = lat, fill = cumsum, group = group),
+    aes(
+      x = long, 
+      y = lat, 
+      group = group
+    ),
+    fill  = "#F2F2F2",
     color = "white"
   ) +
-  geom_text(
-    data = centers, 
-    aes(x = x, y = y, label = id), 
+  geom_polygon(
+    aes(
+      x = long, 
+      y = lat, 
+      group = group,
+      fill = cumsum
+    ),
     color = "white"
+  ) +
+  scale_fill_continuous(
+    low = "#B0C4DE", high = "#104E8B"
   ) +
   theme_void() +
-  labs(title = "Year: {closest_state}") +
-  coord_map() +
-  transition_states(year)
-
-animate(plots, end_pause = 5)
+  theme(
+    legend.position = "none"
+  ) +
+  facet_wrap(~year)
