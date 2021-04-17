@@ -4,14 +4,6 @@ library(ggplot2)
 library(ggtext)
 library(tidytuesdayR)
 library(pdftools)
-library(gghighlight)
-library(ggrepel)
-library(broom)
-library(rgeos)
-library(geojsonio)
-library(rgdal)
-library(usdata)
-library(gganimate)
 
 
 ###########################
@@ -74,8 +66,11 @@ clean_data_2 <- clean_data %>%
 
 
 
-### Ajouter un texte : plus forte hausse, plus forte baisse
+###########################
+## Make plot ##
+###########################
 
+bg_color <- "#e6f5ff"
 
 clean_data_2 %>% 
   ggplot() +
@@ -98,10 +93,42 @@ clean_data_2 %>%
     color = "white"
   ) +
   scale_fill_continuous(
-    low = "#B0C4DE", high = "#104E8B"
+    low = "#B0C4DE", high = "#104E8B",
+    breaks = c(0, max(clean_data_2$cumsum)),
+    labels = c(0, max(clean_data_2$cumsum))
+  ) +
+  facet_wrap(~year) +
+  labs(
+    title = paste0("<br><b style='family:",  '"FreeSans"', "; color: ", 
+                   '"#104E8B"', 
+                   "'> Number of post offices per State</b><br>"),
+    caption = paste0("<b style='family:",  '"FreeSans"', "; color: ",
+                     '"#104E8B"',  "'> Made by Etienne Bacher &middot; Data from Cameron Blevins and Richard W. Helbock</b><br>")
   ) +
   theme_void() +
   theme(
-    legend.position = "none"
-  ) +
-  facet_wrap(~year)
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.key.width = unit(3.5, "cm"),
+    legend.text = element_text(size = 13),
+    legend.margin = margin(0.5, 0, 0.5, 0, unit = "cm"),
+    plot.margin = margin(0, 2.5, 0, 2.5, unit = "cm"),
+    plot.title = element_markdown(hjust = 0.5, size = 20),
+    plot.caption = element_markdown(hjust = 0.5),
+    plot.background = element_rect(fill = bg_color, color = bg_color),
+    panel.background = element_rect(fill = bg_color, color = bg_color),
+    strip.text = element_text(size = 12),
+    text = element_text(family = "Sawasdee")
+  ) 
+
+
+###########################
+## Export ##
+###########################
+
+ggsave("R/2021/W16-us-post-offices/us-post-offices.pdf", 
+       width = 15, height = 9, device = cairo_pdf)
+
+pdf_convert(pdf = "R/2021/W16-us-post-offices/us-post-offices.pdf", 
+            filenames = "R/2021/W16-us-post-offices/us-post-offices.png",
+            format = "png", dpi = 350)  
