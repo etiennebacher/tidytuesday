@@ -99,10 +99,10 @@ clean_data_2 %>%
   ) +
   facet_wrap(~year) +
   labs(
-    title = paste0("<br><b style='family:",  '"FreeSans"', "; color: ", 
+    title = paste0("<br><b style='color: ", 
                    '"#104E8B"', 
                    "'> Number of post offices per State</b><br>"),
-    caption = paste0("<b style='family:",  '"FreeSans"', "; color: ",
+    caption = paste0("<b style='color: ",
                      '"#104E8B"',  "'> Made by Etienne Bacher &middot; Data from Cameron Blevins and Richard W. Helbock</b><br>")
   ) +
   theme_void() +
