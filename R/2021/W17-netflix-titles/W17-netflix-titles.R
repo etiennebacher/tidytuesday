@@ -2,8 +2,7 @@ library(dplyr)
 library(tidyr)
 library(forcats)
 library(ggplot2)
-# devtools::install_github("cran/gettingtothebottom")
-library(gettingtothebottom)
+library(ggtext)
 library(tidytuesdayR)
 library(pdftools)
 
@@ -16,24 +15,46 @@ tuesdata <- tidytuesdayR::tt_load(2021, week = 17)
 
 
 # Get best rated movies
-best_rated <- gettingtothebottom::movieratings %>% 
-  select(title, rating, year) %>% 
-  filter(year >= min(tuesdata$netflix_titles$release_year),
-         title %in% unique(tuesdata$netflix_titles$title),
-         rating >= 8.5)
+# Comes from: https://www.kaggle.com/aditya1303/imdb-top-50-movies
+best_rated <- read.csv("R/2021/W17-netflix-titles/IMDB Top 50.csv") %>% 
+  select(Title, Rating, Year) %>% 
+  filter(Title %in% unique(tuesdata$netflix_titles$title))
 
 # clean_data <- 
 tuesdata$netflix_titles %>% 
-  filter(title %in% best_rated$title) %>% 
+  filter(title %in% best_rated$Title) %>% 
   select(title, date_added, release_year) %>% 
   mutate(
     date_added = substr(date_added, nchar(date_added)-3, nchar(date_added)),
     date_added = as.numeric(date_added),
     diff_date = date_added - release_year
-  ) %>% 
-  pivot_longer(
-    cols = c("date_added", "release_year")
-  ) %>% 
-  ggplot(aes(value, fct_reorder(title, diff_date), color = name)) +
-  geom_point()
+  ) %>%
+  ggplot(aes(y = fct_reorder(title, diff_date))) +
+  geom_segment(
+    aes(x = date_added, xend = release_year, yend = title),
+    color = "#F5F5F1",
+    size = 2
+  ) +
+  geom_richtext(
+    aes(
+      x = release_year - nchar(title)/9,
+      label = title,
+    ),
+    fill = NA,
+    label.color = NA,
+    text.color = "#F5F5F1"
+  ) +
+  geom_point(aes(x = date_added), color = "#e50914", size = 4) +
+  geom_point(aes(x = release_year), color = "#e50914", size = 4) +
+  labs(x = "", y = "") +
+  theme(
+    plot.background = element_rect(fill = "#221F1F"),
+    panel.background = element_rect(fill = "#221F1F"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.major.x = element_line(color = "#5a5a3f", linetype = "dashed"),
+    axis.text = element_text(color = "#F5F5F1"),
+    axis.text.y = element_blank(),
+    text = element_text(family = "Meera", size = 16)
+  )
 ### Faire un plot un peu comme C. Scherer 2021, week 1, mais avec la différence entre release_year et date_added
