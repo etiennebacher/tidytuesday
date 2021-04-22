@@ -32,20 +32,29 @@ tuesdata$netflix_titles %>%
   ggplot(aes(y = fct_reorder(title, diff_date))) +
   geom_segment(
     aes(x = date_added, xend = release_year, yend = title),
-    color = "#F5F5F1",
+    color = "#e50914",
     size = 2
   ) +
   geom_richtext(
     aes(
-      x = release_year - nchar(title)/9,
+      x = release_year - nchar(title)/7.5,
       label = title,
     ),
     fill = NA,
     label.color = NA,
     text.color = "#F5F5F1"
   ) +
-  geom_point(aes(x = date_added), color = "#e50914", size = 4) +
-  geom_point(aes(x = release_year), color = "#e50914", size = 4) +
+  geom_richtext(
+    aes(
+      x = 2022,
+      label = as.character(diff_date),
+    ),
+    fill = NA,
+    label.color = NA,
+    text.color = "#F5F5F1"
+  ) +
+  geom_point(aes(x = date_added), color = "#F5F5F1", size = 4) +
+  geom_point(aes(x = release_year), color = "#F5F5F1", size = 4) +
   labs(x = "", y = "") +
   theme(
     plot.background = element_rect(fill = "#221F1F"),
@@ -57,4 +66,3 @@ tuesdata$netflix_titles %>%
     axis.text.y = element_blank(),
     text = element_text(family = "Meera", size = 16)
   )
-### Faire un plot un peu comme C. Scherer 2021, week 1, mais avec la différence entre release_year et date_added
