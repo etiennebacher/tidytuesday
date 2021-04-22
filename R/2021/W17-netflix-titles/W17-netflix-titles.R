@@ -37,7 +37,7 @@ tuesdata$netflix_titles %>%
   ) +
   geom_richtext(
     aes(
-      x = release_year - nchar(title)/7.5,
+      x = release_year - nchar(title)/5,
       label = title,
     ),
     fill = NA,
@@ -54,8 +54,22 @@ tuesdata$netflix_titles %>%
     text.color = "#F5F5F1"
   ) +
   geom_point(aes(x = date_added), color = "#F5F5F1", size = 4) +
-  geom_point(aes(x = release_year), color = "#F5F5F1", size = 4) +
-  labs(x = "", y = "") +
+  geom_point(aes(x = release_year), color = "#F5F5F1", size = 4)  +
+  geom_curve(
+    aes(x = 2030, xend = 2023, 
+        y = "Pulp Fiction", yend = "Schindler's List"),
+    arrow = arrow(length = unit(2, "mm")),
+    colour = "#F5F5F1",
+    curvature = 0.2
+  ) +
+  annotate(
+    "text",
+    x = 2030.5,
+    y = 9.6,
+    label = paste0("Number of years between first release\n and availability on Netflix"),
+    color = "white"
+  ) +
+  xlim(c(1990, 2035)) +
   theme(
     plot.background = element_rect(fill = "#221F1F"),
     panel.background = element_rect(fill = "#221F1F"),
@@ -64,5 +78,6 @@ tuesdata$netflix_titles %>%
     panel.grid.major.x = element_line(color = "#5a5a3f", linetype = "dashed"),
     axis.text = element_text(color = "#F5F5F1"),
     axis.text.y = element_blank(),
+    axis.title = element_blank(),
     text = element_text(family = "Meera", size = 16)
   )
