@@ -1,5 +1,10 @@
 # My plots for TidyTuesday
 
+
+## 2021, Week 17, Netflix titles
+
+![](R/2021/W17-netflix-titles/netflix-titles.png)
+
 ## 2021, Week 16, US post offices
 
 ![](R/2021/W16-us-post-offices/us-post-offices.png)
