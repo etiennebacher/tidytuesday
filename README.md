@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 19, wells in Africa
+
+![](R/2021/W19-water-sources/water-sources.png)
+
 ## 2021, Week 17, Netflix titles
 
 ![](R/2021/W17-netflix-titles/netflix-titles.png)
