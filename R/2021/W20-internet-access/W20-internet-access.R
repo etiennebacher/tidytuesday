@@ -71,9 +71,9 @@ broadband[, broadband_usage := as.numeric(broadband_usage)] %>%
 ## Export ##
 ###########################
 
-ggsave("R/2021/W20-internet-access/W20-internet-access.pdf", 
+ggsave("R/2021/W20-internet-access/internet-access.pdf", 
        width = 15, height = 9, device = cairo_pdf)
 
-pdf_convert(pdf = "R/2021/W20-internet-access/W20-internet-access.pdf", 
-            filenames = "R/2021/W20-internet-access/W20-internet-access.png",
+pdf_convert(pdf = "R/2021/W20-internet-access/internet-access.pdf", 
+            filenames = "R/2021/W20-internet-access/internet-access.png",
             format = "png", dpi = 350)    
