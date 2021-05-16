@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 20, Internet access in the USA
+
+![](R/2021/W20-internet-access/internet-access.png)
+
 ## 2021, Week 19, wells in Africa
 
 ![](R/2021/W19-water-sources/water-sources.png)
