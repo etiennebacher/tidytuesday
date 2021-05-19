@@ -1,6 +1,7 @@
 # My plots for TidyTuesday
 
 
+
 ## 2021, Week 20, Internet access in the USA
 
 ![](R/2021/W20-internet-access/internet-access.png)
