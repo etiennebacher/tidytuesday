@@ -7,4 +7,4 @@ library(pdftools)
 # Takes a few minutes
 # extrafont::font_import()
 
-tuesdata <- tidytuesdayR::tt_load(2021, week = 21)
+tuesdata <- tidytuesdayR::tt_load(2021, week = 22)
