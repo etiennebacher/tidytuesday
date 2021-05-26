@@ -1,6 +1,9 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 22, Mario Kart records
+
+![](R/2021/W22-mario-kart/mario-kart.png)
 
 ## 2021, Week 20, Internet access in the USA
 

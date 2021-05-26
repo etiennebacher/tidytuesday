@@ -1,6 +1,7 @@
 library(data.table)
 library(ggplot2)
 library(forcats)
+library(tibble)
 library(tidytuesdayR)
 library(extrafont)
 library(pdftools)
@@ -42,25 +43,10 @@ data_cleaned %>%
   ggplot(aes(fct_reorder(track, diff_time), group = 1)) +
   geom_line(aes(y = No), color = color_no_short, size = 2) +
   geom_line(aes(y = Yes), color = color_short, size = 2) +
-  geom_ribbon(aes(ymin = No, ymax = Yes), fill = "#d9e6f2") +
+  geom_ribbon(aes(ymin = No, ymax = Yes), fill = "#f2d9bf") +
   ylab("Number of seconds") +
-  scale_color_manual(
-    values = c("Without shortcuts" = color_no_short, "With shortcuts" = color_short)
-  ) +
-  theme(
-    plot.background = element_rect(fill = "#e6f7ff"),
-    panel.background = element_rect(fill = "#e6f7ff"),
-    axis.title.x = element_blank(),
-    axis.ticks = element_blank(),
-    legend.position = "bottom",
-    plot.subtitle = element_text(hjust = 0.5, size = 20)
-  ) +
-  labs(
-    subtitle = paste0("\nOn the five most played tracks in Mario Kart, shortcuts have saved in average ", mean(data_cleaned$diff_time), " seconds.\n"),
-    caption = "\nMade by Etienne Bacher, data from Benedikt Claus"
-  ) +
   geom_curve(
-    aes(x = 5, xend = 4.6, y = 120, yend = 100),
+    aes(x = 5, xend = 4.6, y = 118, yend = 100),
     arrow = arrow(length = unit(2, "mm")),
     colour = color_no_short,
     size = 0.5,
@@ -70,9 +56,9 @@ data_cleaned %>%
     "text",
     x = 5,
     y = 122,
-    label = "Time without shortcuts",
+    label = "Best time without shortcuts",
     color = color_no_short,
-    # family = "Oxygen Mono",
+    family = "Oxygen Mono",
     size = 5
   ) +
   geom_curve(
@@ -86,8 +72,58 @@ data_cleaned %>%
     "text",
     x = 3.7,
     y = 21,
-    label = "Time with shortcuts",
+    label = "Best time with shortcuts",
     color = color_short,
-    # family = "Oxygen Mono",
+    family = "Oxygen Mono",
     size = 5
-  )
+  ) +
+  geom_segment(
+    data = data_cleaned[order(diff_time)] %>%
+      tibble::rowid_to_column(),
+    aes(x = rowid, xend = rowid, y = Yes + 1, yend = No - 1),
+    arrow = arrow(length = unit(2, "mm"), ends = "both"),
+    color = "#95591d"
+  ) +
+  geom_text(
+    data = data_cleaned[order(diff_time)] %>%
+      tibble::rowid_to_column(),
+    aes(
+      x = rowid - 0.05,
+      y = Yes + (No-Yes)/2,
+      label = paste0("-", round(diff_time, 1), " s")
+    ),
+    angle = 90,
+    color = "#95591d",
+    family = "Oxygen Mono",
+    size = 5
+  ) +
+  theme(
+    plot.background = element_rect(fill = "#FAF0E6"),
+    panel.background = element_rect(fill = "#FAF0E6"),
+    plot.subtitle = element_text(hjust = 0.5, size = 20),
+    plot.caption = element_text(hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(size = 15),
+    axis.text = element_text(color = "#95591d", size = 13),
+    axis.ticks = element_blank(),
+    text = element_text(color = "#95591d", family = "Oxygen Mono"),
+  ) +
+  labs(
+    subtitle = paste0("\nShortcuts have saved on average ", 
+                      mean(data_cleaned$diff_time), 
+                      " seconds in Mario Kart's five most played tracks.\n"),
+    caption = "\n\nMade by Etienne Bacher, data from Benedikt Claus"
+  ) 
+
+
+###########################
+## Export ##
+###########################
+
+ggsave("R/2021/W22-mario-kart/mario-kart.pdf", 
+       width = 15, height = 9, device = cairo_pdf)
+
+pdf_convert(pdf = "R/2021/W22-mario-kart/mario-kart.pdf", 
+            filenames = "R/2021/W22-mario-kart/mario-kart.png",
+            format = "png", dpi = 350)   
