@@ -1,0 +1,47 @@
+library(data.table)
+library(survivoR)
+library(ggplot2)
+library(ggridges)
+library(ggtext)
+library(forcats)
+library(extrafont)
+library(pdftools)
+
+# Takes a few minutes
+# extrafont::font_import()
+
+
+##########
+## Treat the data ##
+##########
+
+clean_data <- as.data.table(viewers) %>% 
+  .[season == 1 | season %% 5 == 0] %>% 
+  .[, .(season = factor(season), viewers)] %>% 
+  .[, mean_viewers := mean(viewers, na.rm = T), by = season]
+
+ggplot(clean_data, aes(x = viewers, y = season)) +
+  geom_density_ridges() +
+  # stat_density_ridges(quantile_lines = TRUE, quantiles = 2)
+  scale_x_continuous(
+    breaks = seq(5, 30, 5), 
+    limits= c(5, 30)
+  ) +
+  scale_y_discrete(limits = rev) +
+  labs(
+    x = "Number of viewers",
+    y = "Season",
+    title = '"The Survivor": a less and less popular show',
+    caption = "Made by Etienne Bacher &middot; Data from the survivoR package"
+  ) +
+  theme(
+    plot.background = element_rect(fill = "#cc6600"),
+    panel.background = element_rect(fill = "#cc6600"),
+    plot.caption = element_markdown(),
+    text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    axis.text = element_text(color = "white"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.ticks = element_blank()
+  )
