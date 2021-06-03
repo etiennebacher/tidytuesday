@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 23, the Survivor
+
+![](R/2021/W23-survivor-tv/survivor-tv.png)
+
 ## 2021, Week 22, Mario Kart records
 
 ![](R/2021/W22-mario-kart/mario-kart.png)

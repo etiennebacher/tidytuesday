@@ -40,7 +40,7 @@ ggplot(clean_data, aes(x = viewers, y = season)) +
     caption = "Made by Etienne Bacher &middot; Data from the survivoR package"
   ) +
   geom_curve(
-    aes(x = 21.5, xend = 20.44, y = 5.9, yend = 6.9),
+    aes(x = 21.6, xend = 20.4, y = 5.7, yend = 6.9),
     arrow = arrow(length = unit(2, "mm")),
     colour = "white",
     size = 0.5,
@@ -48,24 +48,37 @@ ggplot(clean_data, aes(x = viewers, y = season)) +
   ) +
   geom_textbox(
     aes(
-      x = 23.5,
+      x = 23.1,
       y = 5.5
     ),
     label = "Average number of \nviewers during the season",
     color = "white",
-    fill = "#804000"
+    fill = "#804000",
+    family = "Chilanka",
+    width = unit(4, "cm")
   ) +
   theme(
     plot.background = element_rect(fill = "#cc6600"),
     panel.background = element_rect(fill = "#cc6600"),
     plot.caption = element_markdown(),
-    text = element_text(color = "white"),
-    axis.title = element_text(color = "white", size = 13),
-    axis.text = element_text(color = "white"),
+    text = element_text(color = "white", family = "Chilanka"),
+    axis.title = element_text(color = "white", size = 15),
+    axis.text = element_text(color = "white", size = 12),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_line(linetype = "dotted"),
     axis.ticks = element_blank(),
-    plot.title = element_text(size = 25, hjust = 0.5)
+    plot.title = element_text(size = 28, hjust = 0.5)
   )
- 
+
+
+##########
+## Export ##
+##########
+
+ggsave("R/2021/W23-survivor-tv/survivor-tv.pdf", 
+       width = 16, height = 10, device = cairo_pdf)
+
+pdf_convert(pdf = "R/2021/W23-survivor-tv/survivor-tv.pdf", 
+            filenames = "R/2021/W23-survivor-tv/survivor-tv.png",
+            format = "png", dpi = 350)  
