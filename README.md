@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 27, animal rescue
+
+![](R/2021/W27-animal-rescue/animal-rescue.png)
+
 ## 2021, Week 23, the Survivor
 
 ![](R/2021/W23-survivor-tv/survivor-tv.png)
