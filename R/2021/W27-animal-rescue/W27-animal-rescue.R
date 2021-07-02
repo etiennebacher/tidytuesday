@@ -66,13 +66,12 @@ map_rescue <- function(animal) {
     geom_polygon() + 
     geom_path(colour = "white", lwd = 0.05) + 
     coord_equal() +
-    labs(x = "lat", y = "lon",
-         fill = "Crime rate") +
+    labs(x = "lat", y = "lon") +
     scale_fill_gradient2(
       low = "#ffffcc",
       high = "#666600",
-      name = if (animal == "Cat") "Number of rescues\n",
-      na.value = "white"
+      na.value = "white",
+      name = ""
     ) + 
     theme_void() +
     theme(
@@ -82,10 +81,10 @@ map_rescue <- function(animal) {
       legend.position = 'bottom',
       legend.title = element_text(hjust = 0.5),
       legend.key.height = unit(0.3, 'cm'),
-      plot.title = element_text(hjust = 0.5)
+      plot.title = element_text(hjust = 0.5),
+      text = element_text(color = "white")
     ) +
     ggtitle(paste0("\n", animal)) 
-    # guides(fill = guide_legend(title.position = "bottom"))
 }
 
 for (i in most_rescued_animals$animal_group_parent) {
@@ -98,12 +97,24 @@ for (i in most_rescued_animals$animal_group_parent) {
 
 layout <- 
 "
-AAABB
-AAACC
-AAADD
+AAAAABBDD
+AAAAABBDD
+AAAAACCEE
+AAAAACCEE
 "
 
 map_Cat + map_Dog + map_Bird + map_Fox + map_Horse +
-  plot_layout(design = layout)
+  plot_layout(design = layout) +
+  plot_annotation(
+    title = 'Number of animals rescued in London since 2009',
+    caption = '\nMade by Etienne Bacher | Data from London.gov',
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 18),
+      plot.caption = element_text(hjust = 0.5),
+      plot.background = element_rect(fill = "#476b6b"),
+      text = element_text(color = "white")
+    )
+  ) 
+  
 
 
