@@ -1,10 +1,10 @@
-library(data.table) ## Need 1.14.2 (development version at the day of writing)
+library(data.table) 
 library(ggplot2)
 library(ggtext)
 library(patchwork)
-library(stringr)
-library(dplyr)
-library(tidytuesdayR)
+library(maps)
+library(magrittr)
+library(geosphere)
 library(extrafont)
 library(pdftools)
 
@@ -21,121 +21,125 @@ holidays <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
   as.data.table() %>% 
   .[, .(country, year, independence_from)]
 
-holidays[, country := ifelse(country == "Netherlands, The", "Netherlands", country)]
+holidays[, independence_from := fifelse(independence_from == "Spanish Empire", 
+                                        "Spain",
+                                        independence_from)]
+holidays[, independence_from := fifelse(independence_from == "Spanish Empire[72]",
+                                        "Spain",
+                                        independence_from)]
+
+holidays <- holidays[independence_from %in% c("Spain", "United Kingdom", "France")]
+
+world <- map_data("world") %>% 
+  as.data.table()
+
+capitals <- maps::world.cities %>% 
+  as.data.table() %>% 
+  .[capital == 1, .(country = country.etc, lat, long)] 
+
+capitals[, country := ifelse(country == "UK", "United Kingdom", country)] 
+  
+capitals <- capitals[country %in% unique(c(holidays$country, 
+                                           holidays$independence_from))]
 
 
-timeline <- function(x) { 
+data_cleaned <- merge(
+  holidays, capitals,
+  by = "country"
+)
+
+
+##########
+## Make plots ##
+##########
+
+maps_colonial <- list()
+
+# x = country, y = year
+map_country <- function(x, y) {
+  tmp <- data_cleaned[independence_from == x & year > y]
+  coord_x <- capitals[country == x, .(lat, long)]
   
-  data_plot <- holidays[independence_from %in% x]
-  data_min <- data_plot %>% .[year == min(year)]
-  data_max <- data_plot %>% .[year == max(year)]
+  world2 <- world
+  world2[, colony := fifelse(region %in% unique(tmp$country), 1, 0)]
   
-  textcolor <- if ("United Kingdom" %in% x) {
-    "white"
-  } else if ("France" %in% x) {
+  fill_color <- if (x == "France") {
     "#0055a4"
+  } else if (x == "United Kingdom") {
+    "#012169"
   } else {
-    "#EF3340"
+    "red"
   }
+    
+  tmp_p <- ggplot() +
+    geom_map(
+      data = world, map = world,
+      aes(long, lat, map_id = region, fill = colony)
+    ) +
+    geom_richtext(
+      aes(x = 0, y = -55),
+      label = as.character(y),
+      size = 5
+    ) +
+    scale_fill_gradientn(colours = c("white", fill_color), values = c(0, 1)) +
+    theme_void() +
+    theme(
+      plot.background = element_rect(fill = "#85adad"),
+      legend.position = "none"
+    )
   
-  axiscolor <- if ("United Kingdom" %in% x) {
-    "#C8102E"
-  } else if ("France" %in% x) {
-    "#ef4135"
-  } else {
-    "white"
+  for (i in unique(tmp$country)) {
+    coord_y <- tmp[country == i]
+    coords <- gcIntermediate(c(coord_y$long[1], coord_y$lat[1]), 
+                   c(coord_x$long[1], coord_x$lat[1]), 
+                   n=25, addStartEnd=TRUE) %>% 
+      as.data.frame()
+    
+    tmp_p <- tmp_p +
+      geom_line(
+        data = coords,
+        aes(x = lon, y = lat),
+        color = "black",
+        alpha = 0.4
+      )
   }
-
-  
-  ggplot(data_plot, aes(year, 1)) +
-    geom_segment(
-      aes(x = 1550, xend = 2000, y = 1, yend = 1),
-      size = 1,
-      color = axiscolor
-    ) +
-    geom_point(fill = axiscolor, color = textcolor, size = 5, shape = 21) +
-    geom_curve(
-      aes(x = min(year) - 10, xend = min(year)-1, y = 0.99, yend = 0.999),
-      size = 0.1,
-      curvature = 0,
-      color = textcolor
-    ) +
-    geom_curve(
-      aes(x = max(year) - 10, xend = max(year)-1, y = 1.01, yend = 1.001),
-      size = 0.1,
-      curvature = 0,
-      color = textcolor
-    ) +
-    geom_text(
-      data = data_min,
-      aes(
-        x = year - 10,
-        y = 0.987,
-        label = paste0(paste(country, collapse = ", "), ": ", year)
-      ),
-      color = textcolor
-    ) +
-    geom_text(
-      data = data_max,
-      aes(
-        x = year - 10,
-        y = 1.013,
-        label = paste0(paste(country, collapse = ", "), ": ", year)
-      ),
-      color = textcolor
-    ) +
-    geom_text(
-      aes(
-        x = 1600,
-        y = 1.02
-      ),
-      label = x[1], # necessary because Spain has several names
-      color = textcolor,
-      size = 7
-    ) +
-    ylim(c(0.975, 1.025)) +
-    theme_void() 
+   
+  return(tmp_p)
 }
 
-
-uk <- timeline("United Kingdom") +
-  theme(
-    plot.background = element_rect(fill = "#012169"),
-    panel.background = element_rect(fill = "#012169")
-  )
-
-fr <- timeline("France") +
-  theme(
-    plot.background = element_rect(fill = "white"),
-    panel.background = element_rect(fill = "white")
-  )
-
-es <- timeline(c("Spain", "Spanish Empire", "Spanish Empire[72]")) +
-  theme(
-    plot.background = element_rect(fill = "#FFD100"),
-    panel.background = element_rect(fill = "#FFD100")
-  )
+for (i in c("France", "Spain", "United Kingdom")) {
+  for (j in c(1800, 1900, 1975)) {
+    maps_colonial[[paste0(i, "_", j)]] <- map_country(i, j)
+  }
+}
 
 
 layout <- 
 "
-AAAA
-BBBB
-CCCC
+ABC
+DEF
+GHI
 "
 
-uk + fr + es +
+uk_1800 + uk_1900 + uk_1975 +
+  fr_1800 + fr_1900 + fr_1975 +
+  es_1800 + es_1900 + es_1975 +
   plot_layout(design = layout) +
   plot_annotation(
     title = 'When did countries get their independence?',
-    subtitle = "The United Kingdom, France, and Spain were the three main European colonial empires. \nOnly the first and last countries which got their independence are annotated on the graph.",
+    subtitle = "The United Kingdom, France, and Spain were the three main European colonial empires. The lines link the colonies with the country that controls them.",
     caption = 'Made by Etienne Bacher | Data from Wikipedia',
     theme = theme(
       plot.title = element_text(hjust = 0.5, size = 22),
       plot.subtitle = element_text(hjust = 0.5, size = 12),
       plot.caption = element_text(hjust = 0.5),
-      plot.background = element_rect(fill = "#012169")
-      # text = element_text(color = "white", family = "Ubuntu Mono")
+      plot.background = element_rect(fill = "#334d4d"),
+      text = element_text(color = "white")
     )
   ) 
 
+cowplot::plot_grid(
+  uk_1800, uk_1900, uk_1975,
+    fr_1800, fr_1900, fr_1975,
+    es_1800, es_1900, es_1975, ncol = 3
+)
