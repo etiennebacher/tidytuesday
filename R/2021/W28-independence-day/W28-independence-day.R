@@ -4,7 +4,8 @@ library(ggtext)
 library(patchwork)
 library(maps)
 library(magrittr)
-library(geosphere)
+library(png)
+library(grid)
 library(extrafont)
 library(pdftools)
 
@@ -30,8 +31,7 @@ holidays[, independence_from := fifelse(independence_from == "Spanish Empire[72]
 
 holidays <- holidays[independence_from %in% c("Spain", "United Kingdom", "France")]
 
-world <- map_data("world") %>% 
-  as.data.table()
+world <- map_data("world") 
 
 capitals <- maps::world.cities %>% 
   as.data.table() %>% 
@@ -53,15 +53,24 @@ data_cleaned <- merge(
 ## Make plots ##
 ##########
 
-maps_colonial <- list()
+# Get flags 
+img_fr <- readPNG("R/2021/W28-independence-day/FR.png")
+g_fr <- rasterGrob(img_fr, interpolate=TRUE)
+img_uk <- readPNG("R/2021/W28-independence-day/GB.png")
+g_uk <- rasterGrob(img_uk, interpolate=TRUE)
+img_es <- readPNG("R/2021/W28-independence-day/ES.png")
+g_es <- rasterGrob(img_es, interpolate=TRUE)
 
 # x = country, y = year
 map_country <- function(x, y) {
   tmp <- data_cleaned[independence_from == x & year > y]
   coord_x <- capitals[country == x, .(lat, long)]
   
-  world2 <- world
-  world2[, colony := fifelse(region %in% unique(tmp$country), 1, 0)]
+  # Detect colonial link (to color countries)
+  world2 <- as.data.table(world)
+  world2[, colony := as.factor(
+    fifelse(region %in% unique(tmp$country) | region == x, 1, 0)
+  )]
   
   fill_color <- if (x == "France") {
     "#0055a4"
@@ -70,18 +79,29 @@ map_country <- function(x, y) {
   } else {
     "red"
   }
+  
+  flag <- if (x == "France") {
+    g_fr
+  } else if (x == "United Kingdom") {
+    g_uk
+  } else {
+    g_es
+  }
     
   tmp_p <- ggplot() +
     geom_map(
-      data = world, map = world,
+      data = world2, map = world2,
       aes(long, lat, map_id = region, fill = colony)
     ) +
     geom_richtext(
-      aes(x = 0, y = -55),
+      aes(x = 0, y = -53),
       label = as.character(y),
-      size = 5
+      size = 7,
+      family = "Tangerine",
+      fontface = "bold"
     ) +
-    scale_fill_gradientn(colours = c("white", fill_color), values = c(0, 1)) +
+    scale_fill_discrete(type = c("white", fill_color)) +
+    annotation_custom(flag, xmin=-200, xmax=-150, ymin=70, ymax=90) +
     theme_void() +
     theme(
       plot.background = element_rect(fill = "#85adad"),
@@ -89,16 +109,13 @@ map_country <- function(x, y) {
     )
   
   for (i in unique(tmp$country)) {
-    coord_y <- tmp[country == i]
-    coords <- gcIntermediate(c(coord_y$long[1], coord_y$lat[1]), 
-                   c(coord_x$long[1], coord_x$lat[1]), 
-                   n=25, addStartEnd=TRUE) %>% 
-      as.data.frame()
+    coord_y <- tmp[country == i, .(lat, long)]
+    coords <- rbind(coord_x, coord_y)
     
     tmp_p <- tmp_p +
       geom_line(
         data = coords,
-        aes(x = lon, y = lat),
+        aes(x = long, y = lat),
         color = "black",
         alpha = 0.4
       )
@@ -107,12 +124,18 @@ map_country <- function(x, y) {
   return(tmp_p)
 }
 
-for (i in c("France", "Spain", "United Kingdom")) {
-  for (j in c(1800, 1900, 1975)) {
-    maps_colonial[[paste0(i, "_", j)]] <- map_country(i, j)
-  }
-}
 
+fr_1800 <- map_country("France", 1800)
+fr_1900 <- map_country("France", 1900)
+fr_1975 <- map_country("France", 1975)
+
+es_1800 <- map_country("Spain", 1800)
+es_1900 <- map_country("Spain", 1900)
+es_1975 <- map_country("Spain", 1975)
+
+uk_1800 <- map_country("United Kingdom", 1800)
+uk_1900 <- map_country("United Kingdom", 1900)
+uk_1975 <- map_country("United Kingdom", 1975)
 
 layout <- 
 "
@@ -126,20 +149,27 @@ uk_1800 + uk_1900 + uk_1975 +
   es_1800 + es_1900 + es_1975 +
   plot_layout(design = layout) +
   plot_annotation(
-    title = 'When did countries get their independence?',
+    title = 'The loss of influence of empires through time',
     subtitle = "The United Kingdom, France, and Spain were the three main European colonial empires. The lines link the colonies with the country that controls them.",
     caption = 'Made by Etienne Bacher | Data from Wikipedia',
     theme = theme(
-      plot.title = element_text(hjust = 0.5, size = 22),
-      plot.subtitle = element_text(hjust = 0.5, size = 12),
-      plot.caption = element_text(hjust = 0.5),
+      plot.title = element_markdown(hjust = 0.5, size = 45),
+      plot.subtitle = element_text(hjust = 0.5, size = 25),
+      plot.caption = element_text(hjust = 0.5, size = 15),
       plot.background = element_rect(fill = "#334d4d"),
-      text = element_text(color = "white")
+      text = element_text(color = "white", family = "Tangerine",
+                          face = "bold")
     )
   ) 
 
-cowplot::plot_grid(
-  uk_1800, uk_1900, uk_1975,
-    fr_1800, fr_1900, fr_1975,
-    es_1800, es_1900, es_1975, ncol = 3
-)
+
+###########################
+## Export ##
+###########################
+
+ggsave("R/2021/W28-independence-day/independence-day.pdf", 
+       width = 15, height = 9, device = cairo_pdf)
+
+pdf_convert(pdf = "R/2021/W28-independence-day/independence-day.pdf", 
+            filenames = "R/2021/W28-independence-day/independence-day.png",
+            format = "png", dpi = 350)   

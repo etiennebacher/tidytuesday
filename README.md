@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2021, Week 28, independence day | [Code](R/2021/W28-independence-day/W28-independence-day.R)
+
+![](R/2021/W28-independence-day/independence-day.png)
+
 ## 2021, Week 27, animal rescue | [Code](R/2021/W27-animal-rescue/W27-animal-rescue.R)
 
 ![](R/2021/W27-animal-rescue/animal-rescue.png)
