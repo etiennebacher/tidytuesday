@@ -149,7 +149,7 @@ uk_1800 + uk_1900 + uk_1975 +
   es_1800 + es_1900 + es_1975 +
   plot_layout(design = layout) +
   plot_annotation(
-    title = 'The loss of influence of empires through time',
+    title = 'The loss of influence of empires over time',
     subtitle = "The United Kingdom, France, and Spain were the three main European colonial empires. The lines link the colonies with the country that controls them.",
     caption = 'Made by Etienne Bacher | Data from Wikipedia',
     theme = theme(
