@@ -1,10 +1,6 @@
 # My plots for TidyTuesday
 
 
-## 2021, Week 40, NBER papers | [Code](R/2021/W40-nber-papers/W40-nber-papers.R)
-
-![](R/2021/W40-nber-papers/nber-papers.png) 
-
 ## 2021, Week 28, independence day | [Code](R/2021/W28-independence-day/W28-independence-day.R)
 
 ![](R/2021/W28-independence-day/independence-day.png) 
