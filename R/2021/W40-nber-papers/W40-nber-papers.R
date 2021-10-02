@@ -63,6 +63,8 @@ custom_theme <- theme(
 share_plot <-
   joined_df |> 
   filter(year >= 1980, year != 2021) |> 
+  select(year, paper, program_category) |> 
+  distinct() |> 
   group_by(year, program_category) |> 
   count() |> 
   ungroup() |> 
@@ -94,15 +96,17 @@ share_plot <-
 evol_plot <-
   joined_df |> 
   filter(year >= 1980, year != 2021) |> 
+  select(year, paper, program_category) |> 
+  distinct() |> 
   group_by(year, program_category) |> 
   count() |> 
   ungroup() |> 
   drop_na() |> 
   ggplot(aes(year, n, color = program_category)) +
   geom_line(size = 1.5) +
-  geom_hline(yintercept = 2500, alpha = 0.3, linetype = "dashed") +
-  geom_hline(yintercept = 5000, alpha = 0.3, linetype = "dashed") +
-  geom_hline(yintercept = 7500, alpha = 0.3, linetype = "dashed") +
+  geom_hline(yintercept = 400, alpha = 0.3, linetype = "dashed") +
+  geom_hline(yintercept = 800, alpha = 0.3, linetype = "dashed") +
+  geom_hline(yintercept = 1200, alpha = 0.3, linetype = "dashed") +
   labs(
     title = "Number of new papers by category",
     color = "Category",
