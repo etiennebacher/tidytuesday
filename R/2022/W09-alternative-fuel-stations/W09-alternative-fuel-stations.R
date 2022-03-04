@@ -2,9 +2,12 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 library(ggbeeswarm)
+library(geojsonio)
 library(sf)
 library(raster)
+library(broom)
 library(ggtext)
+library(rgeos)
 library(ragg)
 library(pdftools)
 library(rnaturalearth)
@@ -13,13 +16,14 @@ library(rnaturalearth)
 fuel_raw <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-01/stations.csv') 
 
 names(fuel_raw) <- tolower(names(fuel_raw))
-
+us_states <- data.frame(id = datasets::state.abb, name = datasets::state.name)
 
 fuel <- fuel_raw %>%  
   filter(fuel_type_code == "ELEC", state %in% datasets::state.abb) %>% 
   mutate(
     year = year(open_date)
-  ) 
+  ) %>% 
+  left_join(us_states, c("state" = "id"))
 
 test <- fuel %>%
   group_by(state) %>% 
@@ -32,6 +36,12 @@ test <- fuel %>%
   distinct() %>% 
   arrange(state)
 
+
+
+
+##########
+## Make plot for first station with electric per state ##
+##########
 
 first_electric_station <- ggplot(test, aes(x = min_year, y = state)) +
   geom_point() +
@@ -64,7 +74,7 @@ first_electric_station <- ggplot(test, aes(x = min_year, y = state)) +
       x = 2017.5,
       y = 14
     ),
-    label = "Arkansas",
+    label = "Alaska",
     color = "black"
   ) +
   geom_curve(
@@ -92,8 +102,55 @@ first_electric_station <- ggplot(test, aes(x = min_year, y = state)) +
 
 
 
+##########
+## Maks US hex map ##
+##########
+
 fuel_state <- fuel %>% 
-  group_by(state, year) %>% 
+  filter(year == 2021) %>% 
+  group_by(state, name) %>% 
   count() %>% 
   ungroup() %>% 
   arrange(state)
+
+
+map_hex <- geojson_read(
+  "C:\\Users\\etienne\\Desktop\\Divers\\TidyTuesday\\R\\2022\\W09-alternative-fuel-stations\\us_states_hexgrid.geojson.json",
+  what = "sp"
+)
+
+map_hex@data <- map_hex@data %>%
+  mutate(google_name = gsub(" \\(United States\\)", "", google_name))
+map_hex_fortified <- tidy(map_hex, region = "google_name") %>% 
+  left_join(fuel_state, c("id" = "name"))
+
+centers <- cbind.data.frame(data.frame(gCentroid(map_hex, byid=TRUE), id=map_hex@data$iso3166_2))
+
+map_hex_fortified %>%
+  mutate(log_n = log(n)) %>%
+  ggplot() +
+  geom_polygon(aes(
+    x = long,
+    y = lat,
+    group = group,
+    fill = log_n
+  )) +
+  geom_text(data = centers, aes(x = x, y = y, label = id), color = "white") +
+  theme_void() +
+  coord_map()
+
+
+
+n_stations <- fuel %>% 
+  dplyr::select(state, year) %>% 
+  group_by(state, year) %>% 
+  count() %>%
+  ungroup() %>% 
+  group_by(state) %>% 
+  mutate(log_n_cum = log(cumsum(n))) %>% 
+  ungroup()
+
+
+n_stations %>% 
+  ggplot(aes(x = year, y = log_n_cum, group = state), color = "grey") +
+  geom_line()
