@@ -24,18 +24,6 @@ fuel <- fuel_raw %>%
   ) %>% 
   left_join(us_states, c("state" = "id"))
 
-test <- fuel %>%
-  group_by(state) %>% 
-  mutate(
-    min_year = min(year, na.rm = TRUE),
-    max_year = max(year, na.rm = TRUE)
-  ) %>% 
-  ungroup() %>%
-  dplyr::select(state, min_year, max_year) %>% 
-  distinct() %>% 
-  arrange(state)
-
-
 
 luciole::add_luciole()
 bg_color <- "#333333"
@@ -48,7 +36,17 @@ text_color <- "#e6e6e6"
 ##########
 
 first_electric_station <-
-  ggplot(test, aes(x = min_year, y = state)) +
+  fuel %>%
+  group_by(state) %>% 
+  mutate(
+    min_year = min(year, na.rm = TRUE),
+    max_year = max(year, na.rm = TRUE)
+  ) %>% 
+  ungroup() %>%
+  dplyr::select(state, min_year, max_year) %>% 
+  distinct() %>% 
+  arrange(state) |> 
+  ggplot(aes(x = min_year, y = state)) +
   geom_point(color = "#0080ff") +
   xlab("Year") +
   geom_curve(
