@@ -3,7 +3,7 @@
 
 ## 2022, Week 9, electric vehicle charging stations | [Code](R/2022/W09-alternative-fuel-stations/W09-alternative-fuel-stations.R)
 
-![](R/2021/W09-alternative-fuel-stations/alternative-fuel-stations.png) 
+![](R/2022/W09-alternative-fuel-stations/alternative-fuel-stations.png) 
 
 ## 2021, Week 40, NBER papers | [Code](R/2021/W40-nber-papers/W40-nber-papers.R)
 
