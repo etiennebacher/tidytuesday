@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2022, Week 28, european flights | [Code](R/2022/W28-european-flights/W28-european-flights.R)
+
+![](R/2022/W28-european-flights/european-flights.png) 
+
 ## 2022, Week 9, electric vehicle charging stations | [Code](R/2022/W09-alternative-fuel-stations/W09-alternative-fuel-stations.R)
 
 ![](R/2022/W09-alternative-fuel-stations/alternative-fuel-stations.png) 
