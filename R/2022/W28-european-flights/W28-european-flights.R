@@ -161,7 +161,7 @@ ggplot(
     text = element_text(family = FONT, size = 17),
     plot.title = element_markdown(lineheight = 1.2, size = 25, face = "bold"),
     plot.subtitle = element_markdown(lineheight = 1.2, size = 15),
-    plot.caption = element_markdown(hjust = 0)
+    plot.caption = element_markdown(hjust = 0.5)
   ) 
 
 
