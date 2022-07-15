@@ -1,13 +1,11 @@
-library(raster)
 library(dplyr)
 library(tidyr)
 library(ggtext) 
 library(ggplot2)
-library(luciole) # dreamRs/luciole
 library(pdftools)
 
-luciole::add_luciole()
 showtext::showtext_auto()
+sysfonts::font_add_google("Cormorant Garamond")
 
 flights <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-12/flights.csv')
 
@@ -147,6 +145,7 @@ ggplot(
       LINE_PRIMARY, "'>France</span>"
     ),
     subtitle = "Each line is associated to a European country with complete flight data from January  2016 to May 2022. <br> The y-axis measures the share of flights from and to each country that each month represents in the total <br> number of flights across the full period. <br> <br> <i>Example: July  2016 contains 1.8% of all flights from and to France over the full period.</i>",
+    alt = "Line graph showing the evolution of the number of flights from and to each European country (one line per country). The line for France is highlighted. The x-axis corresponds to time between January 2016 and May 2022. The y-axis measures the share of flights from and to each country that each month represents in the total number of flights across the full period. For example, July  2016 contains 1.8% of all flights from and to France over the full period. This graph shows that there are much more flights in summer, and the flight frequency dropped sharply after Covid hit but it starts going back to its previous levels.",
     caption = "Data from Eurocontrol &middot; Graph by Etienne Bacher",
     x = "",
     y = ""

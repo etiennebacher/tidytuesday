@@ -1,7 +1,7 @@
 # My plots for TidyTuesday
 
 
-## 2022, Week 28, european flights | [Code](R/2022/W28-european-flights/W28-european-flights.R)
+## 2022, Week 28, European flights | [Code](R/2022/W28-european-flights/W28-european-flights.R)
 
 ![](R/2022/W28-european-flights/european-flights.png) 
 
