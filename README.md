@@ -1,6 +1,10 @@
 # My plots for TidyTuesday
 
 
+## 2022, Week 47, UK museums | [Code](R/2022/W47-uk-museums/W47-uk-museums.R)
+
+![](R/2022/W47-uk-museums/uk-museums.png) 
+
 ## 2022, Week 28, European flights | [Code](R/2022/W28-european-flights/W28-european-flights.R)
 
 ![](R/2022/W28-european-flights/european-flights.png) 
