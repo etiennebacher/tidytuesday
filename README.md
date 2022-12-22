@@ -1,5 +1,8 @@
 # My plots for TidyTuesday
 
+## 2022, Week 51, temperature predictions | [Code](R/2022/W51-temperature-predictions/W51-temperature-predictions.R)
+
+![](R/2022/W51-temperature-predictions/temperature-predictions.png) 
 
 ## 2022, Week 47, UK museums | [Code](R/2022/W47-uk-museums/W47-uk-museums.R)
 
